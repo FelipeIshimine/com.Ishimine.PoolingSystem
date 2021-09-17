@@ -27,7 +27,7 @@ public class PoolableParticles : MonoBehaviour
         poolable.OnEnqueue -= OnEnqueue;
     }
 
-    private void OnEnqueue()
+    private void OnEnqueue(Poolable poolable)
     {
         gameObject.SetActive(true);
         particles.Stop();

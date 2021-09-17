@@ -5,8 +5,8 @@ using System.Collections;
 public class Poolable : MonoBehaviour
 {
     public static event Action<Poolable> OnAnyPoolableDestroy;
-    public event Action OnEnqueue;
-    public event Action OnDequeue;
+    public event Action<Poolable> OnEnqueue;
+    public event Action<Poolable> OnDequeue;
 
     public string key;
     public string Key
@@ -26,8 +26,8 @@ public class Poolable : MonoBehaviour
         set
         {
             _isPooled = value;
-            if(_isPooled) OnEnqueue?.Invoke();
-            if(!_isPooled) OnDequeue?.Invoke();
+            if(_isPooled) OnEnqueue?.Invoke(this);
+            if(!_isPooled) OnDequeue?.Invoke(this);
         }
     }
 
