@@ -15,7 +15,8 @@ namespace Pooling.Poolers
 
 		private void OnValidate()
 		{
-			key = prefab.name;
+			if(prefab)
+				key = prefab.name;
 		}
 
 		#region Public
