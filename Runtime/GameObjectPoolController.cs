@@ -85,11 +85,13 @@ public class GameObjectPoolController : MonoBehaviour
         Debug.Log("<color=cyan> Added Entry:" + key + "</color>");
 
         for (int i = 0; i < prepopulate; ++i)
-			Enqueue( CreateInstance(key, prefab) );
+			EnqueueNewInstance(key, prefab);
 		
 		return true;
 	}
-	
+
+	private static void EnqueueNewInstance(string key, GameObject prefab)=>Enqueue(CreateInstance(key, prefab), false);
+
 	public static void ClearEntry (string key)
 	{
 		if (!pools.ContainsKey(key))
@@ -105,8 +107,10 @@ public class GameObjectPoolController : MonoBehaviour
         //Debug.Log($"Removed Key: {key}");
 		pools.Remove(key);
 	}
-	
-	public static void Enqueue (Poolable sender)
+
+	public static void Enqueue(Poolable sender) => Enqueue(sender, true);
+
+	private static void Enqueue (Poolable sender, bool sendEvent)
 	{
 		if (sender == null || sender.IsPooled || !pools.ContainsKey(sender.Key))
 			return;
@@ -120,7 +124,7 @@ public class GameObjectPoolController : MonoBehaviour
 		}
 		
 		data.pool.Enqueue(sender);
-		sender.IsPooled = true;
+		sender.SetPooled(true, sendEvent);
 
 		if (!Instance._poolParent.ContainsKey(sender.key))
 		{
@@ -146,11 +150,11 @@ public class GameObjectPoolController : MonoBehaviour
 
 		PoolData data = pools[key];
 		if (data.pool.Count == 0)
-			Enqueue(CreateInstance(key, data.prefab));
+			EnqueueNewInstance(key, data.prefab);
 		
 		UpdatePoolParentCount(key);
 		Poolable obj = data.pool.Dequeue();
-		obj.IsPooled = false;
+		obj.SetPooled(false,true);
 		obj.transform.SetParent(null);
 		return obj;
 	}

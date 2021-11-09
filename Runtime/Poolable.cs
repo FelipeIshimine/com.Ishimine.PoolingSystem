@@ -19,18 +19,17 @@ public class Poolable : MonoBehaviour
         }
         set => key = value;
     }
-    private bool _isPooled;
-    public bool IsPooled
-    {
-        get => _isPooled;
-        set
-        {
-            _isPooled = value;
-            if(_isPooled) OnEnqueue?.Invoke(this);
-            if(!_isPooled) OnDequeue?.Invoke(this);
-        }
-    }
 
+    public bool IsPooled { get; private set; }
+
+    public void SetPooled(bool value, bool sendEvent)
+    {
+        IsPooled = value;
+        if (!sendEvent) return;
+        if(IsPooled) OnEnqueue?.Invoke(this);
+        else OnDequeue?.Invoke(this);
+    }
+    
     private void OnDestroy()
     {
         OnAnyPoolableDestroy?.Invoke(this);
