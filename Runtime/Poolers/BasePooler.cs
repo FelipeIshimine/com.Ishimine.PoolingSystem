@@ -52,6 +52,20 @@ public abstract class BasePooler : MonoBehaviour
 	}
 	#endregion
 
+	#region Protected
+
+	protected virtual void OnValidate()
+	{
+#if UNITY_EDITOR
+		if (prefab != null && !UnityEditor.PrefabUtility.IsPartOfAnyPrefab(prefab))
+		{
+			Debug.Log($"Error, the variable 'prefab' is NOT a PREFAB");
+			prefab = null;
+		}
+#endif
+	}
+	#endregion
+	
 	#region Public
 	public void Register ()
 	{

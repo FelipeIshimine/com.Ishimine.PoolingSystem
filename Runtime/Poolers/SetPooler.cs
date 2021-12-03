@@ -13,10 +13,10 @@ namespace Pooling.Poolers
 		#endregion
 
 
-		private void OnValidate()
+		protected override void OnValidate()
 		{
-			if(prefab)
-				key = prefab.name;
+			base.OnValidate();
+			key = prefab ? prefab.name : string.Empty;
 		}
 
 		#region Public
