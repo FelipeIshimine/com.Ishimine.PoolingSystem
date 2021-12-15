@@ -186,10 +186,10 @@ public class GameObjectPoolController : MonoBehaviour
     }
 	#endregion
 
-	public static Poolable Dequeue(Poolable poolableParticlePrefab)
+	public static Poolable Dequeue(Poolable nPoolable)
 	{
-		if (!pools.ContainsKey(poolableParticlePrefab.Key))
-			AddEntry(poolableParticlePrefab.Key, poolableParticlePrefab.gameObject, 1, 100);
-		return Dequeue(poolableParticlePrefab.Key);
+		if (!pools.ContainsKey(nPoolable.Key))
+			AddEntry(nPoolable.Key, nPoolable.gameObject, 1, 100);
+		return Dequeue(nPoolable.Key);
 	}
 }
