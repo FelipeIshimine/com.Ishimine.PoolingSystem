@@ -39,13 +39,13 @@ public abstract class BasePooler : MonoBehaviour
 
     protected virtual void OnDestroy ()
 	{
-		//EnqueueAll();
 		if (clearOnDestroy)
+		{
+			EnqueueAll();
 			UnRegister();
+		}
 	}
-
   
-
     protected virtual void OnApplicationQuit()
 	{
 		EnqueueAll();
