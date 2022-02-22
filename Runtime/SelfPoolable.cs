@@ -8,7 +8,7 @@ using UnityEngine;
 [RequireComponent(typeof(Poolable))]
 public class SelfPoolable : MonoBehaviour
 {
-    public Poolable poolable;
+    [field:SerializeField] public Poolable Poolable { get; private set; }
     IEnumerator currentRoutine;
 
     public bool startWaitTimeOnEnable = false;
@@ -21,8 +21,8 @@ public class SelfPoolable : MonoBehaviour
 
     private void OnValidate()
     {
-        if (!poolable)
-            poolable = GetComponent<Poolable>();
+        if (!Poolable)
+            Poolable = GetComponent<Poolable>();
     }
     private void OnEnable()
     {
@@ -32,7 +32,7 @@ public class SelfPoolable : MonoBehaviour
 
     public void Enqueue()
     {
-        GameObjectPoolController.Enqueue(poolable);
+        GameObjectPoolController.Enqueue(Poolable);
     }
 
     public void WaitAndPool(float targetWaitTime)
