@@ -9,7 +9,9 @@ namespace Pooling.Poolers
 	{
         public bool disableWhenEnqueue = true;
 		#region Fields / Properties
-		public HashSet<Poolable> collection = new HashSet<Poolable>();
+
+		private readonly HashSet<Poolable> _collection = new HashSet<Poolable>();
+
 		#endregion
 
 
@@ -27,11 +29,11 @@ namespace Pooling.Poolers
 			return this;
 		}
 
-		public override void Enqueue (Poolable item)
+		public override void Enqueue(Poolable item)
 		{
 			base.Enqueue(item);
-			if (collection.Contains(item))
-				collection.Remove(item);
+			if (_collection.Contains(item))
+				_collection.Remove(item);
 			else
                 Debug.LogWarning($"Doesnt contains item {item.gameObject.name} key:{item.key}");
 
@@ -39,22 +41,27 @@ namespace Pooling.Poolers
                 item.gameObject.SetActive(false);
 		}
 
-		public override Poolable Dequeue ()
+		public override Poolable Dequeue()
 		{
 			if(!initialized)
 				Initialize();
 			Poolable item = base.Dequeue();
-			collection.Add(item);
+			_collection.Add(item);
 			return item;
 		}
+
+		public T Dequeue<T>() where T : Component => Dequeue().Component<T>();
 		
 		public Poolable DequeueAt(Transform parent, bool setActive = true)
 		{
 			var obj = Dequeue();
-			obj.transform.SetParent(parent);
+
+			var objTransform = obj.transform;
+			objTransform.SetParent(parent);
 			if(setActive) obj.gameObject.SetActive(true);
-			obj.transform.localScale = Vector3.one;
-			obj.transform.localPosition = Vector3.zero;
+			
+			objTransform.localScale = Vector3.one;
+			objTransform.localPosition = Vector3.zero;
 			return obj;
 		}
 		
@@ -62,18 +69,21 @@ namespace Pooling.Poolers
         [Button]
 		public override void EnqueueAll ()
 		{
-			foreach (Poolable item in collection)
+			foreach (Poolable item in _collection)
 				base.Enqueue(item);
-			collection.Clear();
+			_collection.Clear();
 		}
 
         internal void Remove(Poolable poolable)
         {
-            if (collection.Contains(poolable))
-                collection.Remove(poolable);
+            if (_collection.Contains(poolable))
+                _collection.Remove(poolable);
         }
 
         #endregion
+        
+        
+        
 
         
 	}

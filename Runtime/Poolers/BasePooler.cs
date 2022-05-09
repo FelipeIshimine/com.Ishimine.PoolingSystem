@@ -59,8 +59,8 @@ public abstract class BasePooler : MonoBehaviour
 #if UNITY_EDITOR
 		if (prefab != null && !UnityEditor.PrefabUtility.IsPartOfAnyPrefab(prefab))
 		{
-			Debug.Log($"Error, the variable 'prefab' is NOT a PREFAB");
-			prefab = null;
+			Debug.LogWarning($"Careful, the variable 'prefab' is NOT a PREFAB");
+			//prefab = null;
 		}
 #endif
 	}
