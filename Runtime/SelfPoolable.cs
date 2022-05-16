@@ -16,7 +16,7 @@ public class SelfPoolable : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        if(gameObject.transform.parent == null) DontDestroyOnLoad(gameObject);
     }
 
     private void OnValidate()
