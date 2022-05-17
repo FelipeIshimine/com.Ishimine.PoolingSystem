@@ -53,7 +53,7 @@ namespace Pooling.Poolers
 		public T Dequeue<T>() where T : Component => Dequeue().Component<T>();
 
 		public T DequeueAt<T>(Transform parent, bool setActive = true) where T : Component =>
-			DequeueAt(transform, setActive).Component<T>();
+			DequeueAt(parent, setActive).Component<T>();
 		public Poolable DequeueAt(Transform parent, bool setActive = true)
 		{
 			var obj = Dequeue();
