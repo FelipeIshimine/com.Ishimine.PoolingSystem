@@ -11,14 +11,18 @@ public class GameObjectPoolController : MonoBehaviour
 	{
 		get
 		{
-            if(_instance == null)
-                CreateSharedInstance();
+			if (!_instance)
+			{
+				CreateSharedInstance();
+				
+			}
             return _instance;
 		}
 	}
 	private static GameObjectPoolController _instance;
 	
-	[ShowInInspector]static Dictionary<string, PoolData> pools = new Dictionary<string, PoolData>();
+	[ShowInInspector] private Dictionary<string, PoolData> _pools = new Dictionary<string, PoolData>();
+	private static Dictionary<string, PoolData> Pools => Instance._pools;
 	#endregion
 
 	private Dictionary<string, Transform> _poolParent = new Dictionary<string, Transform>();
@@ -32,6 +36,7 @@ public class GameObjectPoolController : MonoBehaviour
 			Destroy(this);
 		else
 			_instance = this;
+
 		
 		Poolable.OnAnyPoolableDestroy += OnAnyPoolableDestroy;
 
@@ -46,9 +51,9 @@ public class GameObjectPoolController : MonoBehaviour
 	{
 		//Debug.Log(obj.key);
 		
-		if (pools.ContainsKey(obj.key) && pools[obj.key].pool.Contains(obj))
+		if (_pools.ContainsKey(obj.key) && _pools[obj.key].pool.Contains(obj))
 		{
-			List<Poolable> list = new List<Poolable>(pools[obj.key].pool);
+			List<Poolable> list = new List<Poolable>(_pools[obj.key].pool);
 
 			for (int i = 0; i < list.Count; i++)
 			{
@@ -56,7 +61,7 @@ public class GameObjectPoolController : MonoBehaviour
 					list.RemoveAt(i);
 			}
 
-			pools[obj.key].pool = new Queue<Poolable>(list);
+			_pools[obj.key].pool = new Queue<Poolable>(list);
 		}
 		
 	}
@@ -66,22 +71,22 @@ public class GameObjectPoolController : MonoBehaviour
 	#region Public
 	public static void SetMaxCount (string key, int maxCount)
 	{
-		if (!pools.ContainsKey(key))
+		if (!Pools.ContainsKey(key))
 			return;
-		PoolData data = pools[key];
+		PoolData data = Pools[key];
 		data.maxCount = maxCount;
 	}
 
 	public static bool AddEntry (string key, GameObject prefab, int prepopulate, int maxCount)
 	{
-		if (pools.ContainsKey(key))
+		if (Pools.ContainsKey(key))
 			return false;
 		
 		PoolData data = new PoolData();
 		data.prefab = prefab;
 		data.maxCount = maxCount;
 		data.pool = new Queue<Poolable>(prepopulate);
-		pools.Add(key, data);
+		Pools.Add(key, data);
         Debug.Log("<color=cyan> Added Entry:" + key + "</color>");
 
         for (int i = 0; i < prepopulate; ++i)
@@ -94,10 +99,10 @@ public class GameObjectPoolController : MonoBehaviour
 
 	public static void ClearEntry (string key)
 	{
-		if (!pools.ContainsKey(key))
+		if (!Pools.ContainsKey(key))
 			return;
 		
-		PoolData data = pools[key];
+		PoolData data = Pools[key];
 		while (data.pool.Count > 0)
 		{
 			Poolable obj = data.pool.Dequeue();
@@ -105,17 +110,17 @@ public class GameObjectPoolController : MonoBehaviour
 				GameObject.Destroy(obj.gameObject);
 		}
         //Debug.Log($"Removed Key: {key}");
-		pools.Remove(key);
+		Pools.Remove(key);
 	}
 
 	public static void Enqueue(Poolable sender) => Enqueue(sender, true);
 
 	private static void Enqueue (Poolable sender, bool sendEvent)
 	{
-		if (sender == null || sender.IsPooled || !pools.ContainsKey(sender.Key))
+		if (sender == null || sender.IsPooled || !Pools.ContainsKey(sender.Key))
 			return;
 		
-		PoolData data = pools[sender.Key];
+		PoolData data = Pools[sender.Key];
 		if (data.pool.Count >= data.maxCount)
 		{
 			GameObject.Destroy(sender.gameObject);
@@ -128,6 +133,7 @@ public class GameObjectPoolController : MonoBehaviour
 
 		if (!Instance._poolParent.ContainsKey(sender.key))
 		{
+			Debug.Log($"||||| Added:{sender.key}");
 			Transform nRoot = new GameObject().transform;
 			nRoot.gameObject.name = $"Pool:{sender.key}";
 			nRoot.SetParent(Instance.transform);
@@ -140,17 +146,25 @@ public class GameObjectPoolController : MonoBehaviour
 
 	public static Poolable Dequeue (string key)
 	{
-        if (!pools.ContainsKey(key))
+        if (!Pools.ContainsKey(key))
         {
-            foreach (string item in pools.Keys)
+            foreach (string item in Pools.Keys)
                 Debug.Log("KEY: " + item);
 
             return null;
         }
 
-		PoolData data = pools[key];
+		PoolData data = Pools[key];
 		if (data.pool.Count == 0)
 			EnqueueNewInstance(key, data.prefab);
+		else
+		{
+			Debug.Log($"||||| {key} Count:{data.pool.Count} IsNull:{data.pool.Peek() == null}");
+			
+			foreach (var poolable in data.pool)
+				Debug.Log($"{poolable.gameObject.transform.parent}/{poolable.gameObject.name}");
+		}
+		
 		
 		UpdatePoolParentCount(key);
 		Poolable obj = data.pool.Dequeue();
@@ -188,7 +202,7 @@ public class GameObjectPoolController : MonoBehaviour
 
 	public static Poolable Dequeue(Poolable nPoolable)
 	{
-		if (!pools.ContainsKey(nPoolable.Key))
+		if (!Pools.ContainsKey(nPoolable.Key))
 			AddEntry(nPoolable.Key, nPoolable.gameObject, 1, 100);
 		return Dequeue(nPoolable.Key);
 	}
