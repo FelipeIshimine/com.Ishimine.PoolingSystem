@@ -157,14 +157,6 @@ public class GameObjectPoolController : MonoBehaviour
 		PoolData data = Pools[key];
 		if (data.pool.Count == 0)
 			EnqueueNewInstance(key, data.prefab);
-		else
-		{
-			Debug.Log($"||||| {key} Count:{data.pool.Count} IsNull:{data.pool.Peek() == null}");
-			
-			foreach (var poolable in data.pool)
-				Debug.Log($"{poolable.gameObject.transform.parent}/{poolable.gameObject.name}");
-		}
-		
 		
 		UpdatePoolParentCount(key);
 		Poolable obj = data.pool.Dequeue();
