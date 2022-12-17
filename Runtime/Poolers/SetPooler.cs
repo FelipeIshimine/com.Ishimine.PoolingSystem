@@ -10,9 +10,9 @@ namespace Pooling.Poolers
         public bool disableWhenEnqueue = true;
 		#region Fields / Properties
 
-		private readonly HashSet<Poolable> _collection = new HashSet<Poolable>();
+        public HashSet<Poolable> Collection { get; private set; } = new HashSet<Poolable>();
 
-		#endregion
+        #endregion
 
 
 		protected override void OnValidate()
@@ -32,8 +32,8 @@ namespace Pooling.Poolers
 		public override void Enqueue(Poolable item)
 		{
 			base.Enqueue(item);
-			if (_collection.Contains(item))
-				_collection.Remove(item);
+			if (Collection.Contains(item))
+				Collection.Remove(item);
 			else
                 Debug.LogWarning($"Doesnt contains item {item.gameObject.name} key:{item.key}");
 
@@ -46,7 +46,7 @@ namespace Pooling.Poolers
 			if(!initialized)
 				Initialize();
 			Poolable item = base.Dequeue();
-			_collection.Add(item);
+			Collection.Add(item);
 			return item;
 		}
 
@@ -71,15 +71,15 @@ namespace Pooling.Poolers
         [Button]
 		public override void EnqueueAll ()
 		{
-			foreach (Poolable item in _collection)
+			foreach (Poolable item in Collection)
 				base.Enqueue(item);
-			_collection.Clear();
+			Collection.Clear();
 		}
 
         internal void Remove(Poolable poolable)
         {
-            if (_collection.Contains(poolable))
-                _collection.Remove(poolable);
+            if (Collection.Contains(poolable))
+                Collection.Remove(poolable);
         }
 
         #endregion
